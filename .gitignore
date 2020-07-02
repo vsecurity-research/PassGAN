@@ -1,6 +1,0 @@
-experiments/
-venv/
-data/*.txt
-*.pyc
-*.pkl
-.ipynb_checkpoints

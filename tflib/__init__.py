@@ -3,7 +3,7 @@ import tensorflow as tf
 
 import locale
 
-locale.setlocale(locale.LC_ALL, '')
+locale.setlocale(locale.LC_ALL, 'C')
 
 _params = {}
 _param_aliases = {}
@@ -99,16 +99,16 @@ def delete_param_aliases():
 #     )
 
 def print_model_settings(locals_):
-    print "Uppercase local vars:"
+    print("Uppercase local vars:")
     all_vars = [(k,v) for (k,v) in locals_.items() if (k.isupper() and k!='T' and k!='SETTINGS' and k!='ALL_SETTINGS')]
     all_vars = sorted(all_vars, key=lambda x: x[0])
     for var_name, var_value in all_vars:
-        print "\t{}: {}".format(var_name, var_value)
+        print("\t{}: {}".format(var_name, var_value))
 
 
 def print_model_settings_dict(settings):
-    print "Settings dict:"
+    print("Settings dict:")
     all_vars = [(k,v) for (k,v) in settings.items()]
     all_vars = sorted(all_vars, key=lambda x: x[0])
     for var_name, var_value in all_vars:
-        print "\t{}: {}".format(var_name, var_value)
+        print("\t{}: {}".format(var_name, var_value))

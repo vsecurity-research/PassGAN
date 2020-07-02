@@ -11,8 +11,8 @@ with open('../data/rockyou-full.txt', 'r') as f:
     lines = f.readlines()
 
     # filter only passwords with 10 characters or fewer
-    print('[info] filtering rockyou to include only 10 character or less passwords')
-    lines = filter(lambda x: len(x) <= 10, lines)
+    #print('[info] filtering rockyou to include only 10 character or less passwords')
+    #lines = filter(lambda x: len(x) <= 10, lines)
 
     # randomize order
     print('[info] shuffling rockyou')
@@ -20,10 +20,10 @@ with open('../data/rockyou-full.txt', 'r') as f:
 
     split = int(len(lines) * 0.80)
 
-    with open('../data/train.txt', 'w') as f:
+    with open('../data/train.txt', 'w', encoding="ISO-8859-1") as f:
         print('[info] saving 80% ({}) of dataset for training in ../data/train.txt'.format(split))
         f.write(''.join(lines[0:split]))
 
-    with open('../data/test.txt', 'w') as f:
+    with open('../data/test.txt', 'w', encoding="ISO-8859-1") as f:
         print('[info] saving 20% ({}) of dataset for testing in ../data/test.txt'.format(len(lines) - split))
         f.write(''.join(lines[split:]))
