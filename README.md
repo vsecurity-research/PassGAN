@@ -33,7 +33,7 @@ python sample.py \
 
 ### Training your own models
 
-You can downlaod sample datasets from release page, or generate sample rockyou dataset by yourself with codes under `bin`.
+You can download sample datasets from release page, or generate sample rockyou dataset by yourself with codes under `bin`.
 
 Training a model on a large dataset (100MB+) can take several hours on a GTX 1080.
 
@@ -63,6 +63,6 @@ This code is released under an [MIT License](https://github.com/igul222/improved
 
 The credit for the code in this repository goes to [@igul222](https://github.com/igul222) for his work on the [improved_wgan_training](https://github.com/igul222/improved_wgan_training) and [@brannondorsey](https://github.com/brannondorsey) for specializing it in the PassGAN paper.
 
-This is updated version for Python 3 / TensorFlow 1.13 of their work.
+This is updated version for Python 3 / TensorFlow 2.20 of their work.
 
 The PassGAN [research and paper](https://arxiv.org/abs/1709.00440) was published by Briland Hitaj, Paolo Gasti, Giuseppe Ateniese, Fernando Perez-Cruz.
