@@ -6,7 +6,6 @@ import locale
 locale.setlocale(locale.LC_ALL, 'C')
 
 _params = {}
-_param_aliases = {}
 def param(name, *args, **kwargs):
     """
     A wrapper for `tf.Variable` which enables parameter sharing in models.
@@ -26,11 +25,7 @@ def param(name, *args, **kwargs):
         param.param = True
         _params[name] = param
     result = _params[name]
-    i = 0
-    while result in _param_aliases:
-        # print 'following alias {}: {} to {}'.format(i, result, _param_aliases[result])
-        i += 1
-        result = _param_aliases[result]
+
     return result
 
 def params_with_name(name):
@@ -38,14 +33,6 @@ def params_with_name(name):
 
 def delete_all_params():
     _params.clear()
-
-def alias_params(replace_dict):
-    for old,new in replace_dict.items():
-        # print "aliasing {} to {}".format(old,new)
-        _param_aliases[old] = new
-
-def delete_param_aliases():
-    _param_aliases.clear()
 
 # def search(node, critereon):
 #     """

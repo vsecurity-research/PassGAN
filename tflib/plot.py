@@ -25,7 +25,8 @@ def plot(name, value):
 def flush():
     prints = []
 
-    print(_since_last_flush.items())
+    _ = _since_last_flush.items()
+    #print(_since_last_flush.items())
 
     for name, vals in _since_last_flush.items():
         prints.append("{}\t{}".format(name, np.mean(list(vals.values()))))

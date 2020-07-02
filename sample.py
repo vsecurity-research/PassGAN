@@ -1,5 +1,6 @@
 # Libraries
 import os
+import sys
 import time
 import pickle
 import argparse
@@ -12,6 +13,19 @@ import tflib.ops.linear
 import tflib.ops.conv1d
 import utils
 import models
+
+gpus = tf.config.experimental.list_physical_devices('GPU')
+if gpus:
+    # Restrict TensorFlow to only allocate 1GB * 2 of memory on the first GPU
+    try:
+        tf.config.experimental.set_virtual_device_configuration(
+            gpus[0],
+            [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=1024 * 2)])
+        logical_gpus = tf.config.experimental.list_logical_devices('GPU')
+        print(len(gpus), "Physical GPUs,", len(logical_gpus), "Logical GPUs", file=sys.stderr)
+    except RuntimeError as e:
+        # Virtual devices must be set before GPUs have been initialized
+        print(e)
 
 '''
 python sample.py \
@@ -63,6 +77,10 @@ def parse_args():
                         default=128,
                         dest='layer_dim',
                         help='The hidden layer dimensionality for the generator. Use the same value that you did for training (default: 128)')
+
+    parser.add_argument('--stdout',
+                        help='Whether or not to output results to stdout indefinitely',
+                        action='store_true')
     
     args = parser.parse_args()
 
@@ -90,10 +108,12 @@ with open(os.path.join(args.input_dir, 'charmap.pickle'), 'rb') as f:
 with open(os.path.join(args.input_dir, 'charmap_inv.pickle'), 'rb') as f:
     inv_charmap = pickle.load(f, encoding='latin1')
     
-    
+
+tf.compat.v1.disable_eager_execution()
+
 fake_inputs = models.Generator(args.batch_size, args.seq_length, args.layer_dim, len(charmap))
 
-with tf.Session() as session:
+with tf.compat.v1.Session() as session:
 
     def generate_samples():
         samples = session.run(fake_inputs)
@@ -112,24 +132,49 @@ with tf.Session() as session:
                     s = "".join(s).replace('`', '')
                     f.write(s + "\n")
 
-    saver = tf.train.Saver()
+    def output(samples):
+        for s in samples:
+            s = "".join(s).replace('`','')
+            print(s)
+
+    saver = tf.compat.v1.train.Saver()
     saver.restore(session, args.checkpoint)
 
     samples = []
     then = time.time()
     start = time.time()
-    for i in range(int(args.num_samples / args.batch_size)):
+
+    if args.stdout:
+        i = 0
+        while True:
+            samples.extend(generate_samples())
+
+            # append to output file every 100 batches
+            if i % 100 == 0 and i > 0: 
+                
+                output(samples)
+                samples = [] # flush
+
+                #print('wrote {} samples to {} in {:.2f} seconds. {} total.'.format(100 * args.batch_size, args.output, time.time() - then, i * args.batch_size), file=sys.stderr)
+                then = time.time()
+                i = 0
+            else:
+                i += 1
         
-        samples.extend(generate_samples())
+        output(samples)
+    else:
+        for i in range(int(args.num_samples / args.batch_size)):        
+            samples.extend(generate_samples())
 
-        # append to output file every 1000 batches
-        if i % 1000 == 0 and i > 0: 
-            
-            save(samples)
-            samples = [] # flush
+            # append to output file every 1000 batches
+            if i % 1000 == 0 and i > 0: 
+                
+                save(samples)
+                samples = [] # flush
 
-            print('wrote {} samples to {} in {:.2f} seconds. {} total.'.format(1000 * args.batch_size, args.output, time.time() - then, i * args.batch_size))
-            then = time.time()
-    
-    save(samples)
-print('\nFinished in {:.2f} seconds'.format(time.time() - start))
+                print('wrote {} samples to {} in {:.2f} seconds. {} total.'.format(1000 * args.batch_size, args.output, time.time() - then, i * args.batch_size), file=sys.stderr)
+                then = time.time()
+        
+        save(samples)
+
+print('\nFinished in {:.2f} seconds'.format(time.time() - start), file=sys.stderr)
